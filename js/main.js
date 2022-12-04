@@ -73,12 +73,21 @@ function agregarACarrito(e) {
     actualizaValorNumero()
     //agrega el producto en el LS
     localStorage.setItem("producto-agregado", JSON.stringify(carrito));
-    Swal.fire({
-        /* position: 'top-end', */
-        icon: 'success',
-        title: 'Producto agregado al carrito',
-        showConfirmButton: false,
-        timer: 1600
-      })
+    // Swal.fire({
+    //     /* position: 'top-end', */
+    //     icon: 'success',
+    //     title: 'Producto agregado al carrito',
+    //     showConfirmButton: false,
+    //     timer: 1600
+    //   })
+
+    Toastify({
+        text: "Producto agregado",
+        className: "info",
+        gravity: "bottom",
+        style: {
+          background: "#1c770a",
+        }
+      }).showToast();
 }
 

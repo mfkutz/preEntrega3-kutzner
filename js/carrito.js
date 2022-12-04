@@ -16,6 +16,36 @@ function actualizaValorNumero() {
     let actualizarNumeroCarrito = carrito.reduce((acumulador, elemento) => acumulador + elemento.cantidad, 0);
     cantidadProductos.innerText = actualizarNumeroCarrito;
 }
+
+//API PARA REALIZAR PAGO EN (((((  MODO PRUEBA  )))))))
+const apiMercadoPago = async () => {
+
+    const productosToMap = productosEnLS.map(element => {
+        let nuevoElemento = {
+            title: element.titulo,
+            description: element.id,
+            picture_url: element.imagen,
+            category_id: element.categoria.nombre,
+            quantity: element.cantidad,
+            currency_id: "ARS",
+            unit_price: element.precio
+        }
+        return nuevoElemento
+    })
+
+    const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
+        method: "POST",
+        headers: {
+            Authorization: "Bearer TEST-3667486226635583-120218-96aee790c80e6aa3e914c8383bd35573-207790643"
+        },
+        body: JSON.stringify ({
+            items: productosToMap
+        })
+    });
+    let data = await response.json();
+    window.open(data.init_point, "_blank");
+}
+
 //funcion general para cargar productos
 function cargarProductosCarrito() {
     if (productosEnLS && productosEnLS.length > 0) {
@@ -27,6 +57,9 @@ function cargarProductosCarrito() {
         contenedorComprado.classList.add("disabled");
         contenedorAcciones.classList.remove("disabled");
         contenedorVacio.classList.add("disabled");
+
+        //PROBANDO SI ES ESTE EL ARRAY CORRECTO
+        console.log(productosEnLS);
         //hago un forEach por cada producto
         productosEnLS.forEach(producto => {
             const div = document.createElement("div");
@@ -122,18 +155,20 @@ comprar.addEventListener("click", () => {
         confirmButtonText: 'Comprar'
     }).then((result) => {
         if (result.isConfirmed) {
-            productosEnLS.length = 0;
-            localStorage.setItem("producto-agregado", JSON.stringify(productosEnLS));
-            contenedorVacio.classList.remove("disabled");
-            contenedorProductosEnCarrit.classList.add("disabled");
-            contenedorAcciones.classList.add("disabled");
-            carroVacioImg.classList.remove("disabled");
-            actualizaValorNumero()
-          Swal.fire(
-            'Gracias por su compra !',
-            'Puedes ir a la tienda a seguir comprando :)',
-            'success'        
-          )
+            //LLAMADA DE API        
+            apiMercadoPago()
+            setTimeout(() => {
+
+                //VACIO CARRITO DESPUES DE LA COMPRA 
+                productosEnLS.length = 0;
+                localStorage.setItem("producto-agregado", JSON.stringify(productosEnLS));
+                contenedorVacio.classList.remove("disabled");
+                contenedorProductosEnCarrit.classList.add("disabled");
+                contenedorAcciones.classList.add("disabled");
+                carroVacioImg.classList.remove("disabled");
+                actualizaValorNumero()
+            
+            }, 10000);
         }
       })
-})
+});
